@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Werror -v
+CXXFLAGS = -std=c++17 -Wall -Wextra -Werror
 
 TARGET = output/OrderBook
 
