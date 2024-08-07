@@ -108,7 +108,7 @@ private:
                     auto& bidOrders = bidIt->second;
                     auto& order = bidOrders.front();
 
-                    if (order->getOrderType() == OrderType::FillAndKill) {
+                    if (order->getOrderType() == OrderType::FillOrKill) {
                         cancelOrder(order->getOrderId());
                     }
                 }
@@ -121,7 +121,7 @@ private:
                     auto& askOrders = askIt->second;
                     auto& order = askOrders.front();
 
-                    if (order->getOrderType() == OrderType::FillAndKill) {
+                    if (order->getOrderType() == OrderType::FillOrKill) {
                         cancelOrder(order->getOrderId());
                     }
                 }
@@ -139,7 +139,7 @@ public:
             return {};
         }
 
-        if (order->getOrderType() == OrderType::FillAndKill) {
+        if (order->getOrderType() == OrderType::FillOrKill) {
             if (!canMatch(order->getSide(), order->getPrice())) {
                 return {};
             }
@@ -237,7 +237,7 @@ int main() {
     const OrderId orderId = 1;
     const Price price = 100;
     const Quantity quantity = 10;
-    orderBook.addOrder(std::make_shared<Order>(orderId, price, quantity, Side::Buy, OrderType::GoodTillCancel));
+    orderBook.addOrder(std::make_shared<Order>(orderId, price, quantity, Side::Buy, OrderType::MarketOrder));
 
     std::cout << "Number of bids: " << orderBook.getNumBids() << std::endl;
     std::cout << "Number of asks: " << orderBook.getNumAsks() << std::endl;
