@@ -13,7 +13,7 @@ This project is a market simulation that implements an order book with agents th
 
 ## Todos
 
-- [-] Implement Order Book
+- [ ] Implement Order Book
 
     - [x] Implement Market Orders
 
