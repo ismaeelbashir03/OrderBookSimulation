@@ -6,9 +6,29 @@ This project is a market simulation that implements an order book with agents th
 
 ## Features
 
-- **Order Book**: A robust implementation of an order book that supports various types of orders and matching algorithms.
+- **Order Book** (In progress): An order book that supports adding, cancelling and modifying Market Orders, and FoK orders with a matching algorithm.
 - **Agents**: (Upcoming) Agents that can place and cancel orders in the market.
 - **Market Conditions**: (Upcoming) Simulations of different market conditions such as bullish and bearish trends.
+
+
+## Todos
+
+- [-] Implement Order Book
+
+    - [x] Implement Market Orders
+
+    - [x] Implement FoK Orders
+
+    - [x] Implement Matching Algorithm
+
+    - [ ] Implement Cancel Orders
+    
+    - [ ] Implement Modify Orders
+    
+    - [ ] Make sure there are no memory leaks
+
+- [ ] Implement Agents
+- [ ] Implement Market Conditions
 
 ## Installation
 

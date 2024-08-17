@@ -1,7 +1,13 @@
 #include "Order.h"
 
-Order::Order(OrderId orderId, Price price, Quantity quantity, Side side, OrderType orderType)
-    : orderId(orderId), price(price), side(side), orderType(orderType), initialQuantity(quantity), remainingQuantity(quantity) {}
+Order::Order(OrderId orderId, Price price, Quantity quantity, Side side, OrderType orderType) {
+    this->orderId = orderId;
+    this->price = price;
+    this->initialQuantity = quantity;
+    this->remainingQuantity = quantity;
+    this->side = side;
+    this->orderType = orderType;
+}
 
 OrderId Order::getOrderId() const {
     return orderId;

@@ -14,6 +14,7 @@ public:
     OrderId getOrderId() const;
     Price getPrice() const;
     Side getSide() const;
+    Time getTime() const;
     OrderType getOrderType() const;
     Quantity getInitialQuantity() const;
     Quantity getRemainingQuantity() const;
@@ -27,6 +28,7 @@ private:
     OrderType orderType;
     Quantity initialQuantity;
     Quantity remainingQuantity;
+    Time time;
 };
 
 using OrderPtr = std::shared_ptr<Order>;
