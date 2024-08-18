@@ -20,7 +20,13 @@ $(OUT_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(OUT_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+run: $(TARGET)
+	./$(TARGET)
+
+valgrind: $(TARGET)
+	valgrind --leak-check=full ./$(TARGET)
+
 clean:
 	rm -f $(OUT_DIR)/*.o $(TARGET)
 
-.PHONY: all clean
+.PHONY: all clean run valgrind

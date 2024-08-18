@@ -25,7 +25,7 @@ This project is a market simulation that implements an order book with agents th
     
     - [x] Implement Modify Orders
     
-    - [ ] Make sure there are no memory leaks
+    - [x] Make sure there are no memory leaks (use valgrind)
 
 - [ ] Implement Agents
 - [ ] Implement Market Conditions
@@ -40,7 +40,17 @@ To get started with this project, follow these steps:
     cd OrderBookSimulation
     ```
 
-2. **Build the project**:
+2. **Install dependencies**:
+    Ensure you have `g++` installed. You can install it using the following command:
+    ```sh
+    sudo apt-get install g++
+    ```
+    (Optional) Ensure you have `valgrind` installed. You can install it using the following command:
+    ```sh
+    sudo apt-get install valgrind
+    ```
+
+3. **Build the project**:
     Ensure you have `g++` installed. You can use the provided Makefile to build the project.
     ```sh
     make
