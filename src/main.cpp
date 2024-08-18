@@ -61,12 +61,12 @@ int main() {
     OrderConfirmation order7 = addOrder(orderbook, 101, 5, Side::Sell, OrderType::MarketOrder);
     orderbook.printOrderbook();
 
-    // cancel last order
+    // cancel order
     orderbook.cancelOrder(order5.first);
     orderbook.printOrderbook();
 
     // cancel order that doesnt exist
-    orderbook.cancelOrder(123);
+    orderbook.cancelOrder(order7.first);
     orderbook.printOrderbook();
 
     // modify order to switch side

@@ -25,7 +25,9 @@ This project is a market simulation that implements an order book with agents th
     
     - [x] Implement Modify Orders
     
-    - [x] Make sure there are no memory leaks (use valgrind)
+    - [x] Make sure there are no memory leaks (make valgrind)
+
+    - [x] Stress test the order book (make stress_test)
 
 - [ ] Implement Agents 
 - [ ] Implement Market Conditions
@@ -62,3 +64,13 @@ After building the project, you can run the simulation:
 
 ```sh
 ./output/OrderBook
+```
+Or 
+```sh
+make run
+```
+
+To run the stress test (generates 1 million random orders and tests the order book):
+```sh
+make stress_test
+```
