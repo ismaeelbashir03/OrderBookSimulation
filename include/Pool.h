@@ -2,6 +2,7 @@
 #include <vector>
 
 /*
+* HAVENT USED THIS YET - DIDNT NEED IT
 * A pool, that can be used to allocate and free objects.
 * The pool is a vector of objects, and a vector of free indices.
 * The free indices are used to keep track of which objects are free.

@@ -6,15 +6,11 @@ TARGET = output/OrderBook
 SRC_DIR = src
 OUT_DIR = output
 
-SRCS = $(SRC_DIR)/Order.cpp $(SRC_DIR)/Trade.cpp $(SRC_DIR)/OrderbookLevelInfos.cpp $(SRC_DIR)/OrderModify.cpp
-
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OUT_DIR)/%.o)
-
 all: $(TARGET)
 
 $(TARGET): $(OBJS) $(SRC_DIR)/main.cpp
 	mkdir -p $(OUT_DIR)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(SRC_DIR)/main.cpp
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC_DIR)/main.cpp
 
 $(OUT_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir -p $(OUT_DIR)

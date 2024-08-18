@@ -11,10 +11,17 @@ struct TradeInfo {
 
 class Trade {
 public:
-    Trade(const TradeInfo& bidTrade, const TradeInfo& askTrade);
+    Trade(const TradeInfo& bidTrade, const TradeInfo& askTrade) {
+        this->bidTrade = bidTrade;
+        this->askTrade = askTrade;
+    }
 
-    TradeInfo getBidTrade() const;
-    TradeInfo getAskTrade() const;
+    TradeInfo getBidTrade() {
+        return bidTrade;
+    }
+    TradeInfo getAskTrade() {
+        return askTrade;
+    }
 
 private:
     TradeInfo bidTrade;

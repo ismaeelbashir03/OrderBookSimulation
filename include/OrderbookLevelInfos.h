@@ -4,10 +4,17 @@
 
 class OrderBookLevelInfos {
 public:
-    OrderBookLevelInfos(const LevelInfos& bids, const LevelInfos& asks);
+    OrderBookLevelInfos(const LevelInfos& bids, const LevelInfos& asks) {
+        this->bids = bids;
+        this->asks = asks;
+    }
 
-    LevelInfos getBids() const;
-    LevelInfos getAsks() const;
+    LevelInfos getBids() {
+        return bids;
+    };
+    LevelInfos getAsks() {
+        return asks;
+    };
 
 private:
     LevelInfos bids;

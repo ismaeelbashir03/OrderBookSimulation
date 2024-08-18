@@ -7,7 +7,6 @@
 #include "Order.h"
 #include "OrderLevel.h"
 #include "Trade.h"
-#include "OrderModify.h"
 #include "OrderbookLevelInfos.h"
 
 /*
@@ -31,6 +30,25 @@
 */
 class Orderbook {
 public:
+
+    void printOrderbook() {
+        OrderBookLevelInfos orderInfos = getOrderInfos();
+
+        std::cout << "Orderbook State: "<< std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Bid Levels:" << std::endl;
+        for (const auto& level : orderInfos.getBids()) {
+            std::cout << "Price: " << level.price << ", Quantity: " << level.quantity << std::endl;
+        }
+
+        std::cout << "Ask Levels:" << std::endl;
+        for (const auto& level : orderInfos.getAsks()) {
+            std::cout << "Price: " << level.price << ", Quantity: " << level.quantity << std::endl;
+        }
+
+        std::cout << std::endl;
+    }
 
     OrderConfirmation addOrder(const Price price, const Quantity quantity, const Side side, const OrderType orderType) {
 
@@ -61,12 +79,12 @@ public:
 
         // store order and its location
         orders[order->getOrderId()] = order; 
-        
+
         return OrderConfirmation{order->getOrderId(), matchOrders()};
     }
 
     void cancelOrder(OrderId orderId) {
-
+        
         // if the order doesn't exist, return
         if (orders.find(orderId) == orders.end()) {
             return;
@@ -86,8 +104,10 @@ public:
         // if the level is empty, remove it from the heap
         if (level->empty()) {
             if (order->getSide() == Side::Buy) {
+                bidLevels.erase(order->getPrice());
                 bids.pop();
             } else {
+                askLevels.erase(order->getPrice());
                 asks.pop();
             }
             delete level;
@@ -210,10 +230,9 @@ private:
     * Matches orders in the orderbook
     */
     Trades matchOrders() {
-
         Trades trades;
         trades.reserve(asks.size() + bids.size()); // At most, we can have one trade per order
-
+        
         while (!bids.empty() && !asks.empty()) {
 
             Price bidPrice = bids.top().first;
@@ -228,45 +247,43 @@ private:
             if (bidPrice < askPrice) {
                 break;
             }
+                
+            auto tradeQuantity = std::min(topBid->getRemainingQuantity(), topAsk->getRemainingQuantity());
+            topBid->fill(tradeQuantity);
+            topAsk->fill(tradeQuantity);
 
-            while (bids.size() && asks.size()) {
-
-                auto tradeQuantity = std::min(topBid->getRemainingQuantity(), topAsk->getRemainingQuantity());
-                topBid->fill(tradeQuantity);
-                topAsk->fill(tradeQuantity);
-
-                if (topBid->getRemainingQuantity() == 0) {
-                    bidLevel->pop_front();
-                    if (bidLevel->empty()) {
-                        bids.pop();
-                        bidLevels.erase(topBid->getPrice());
-                        delete bidLevel;
-                    }
-
-                    orders.erase(topBid->getOrderId());
-                    delete topBid;
+            trades.push_back(
+                Trade{
+                    TradeInfo{topBid->getOrderId(), topBid->getPrice(), tradeQuantity},
+                    TradeInfo{topAsk->getOrderId(), topAsk->getPrice(), tradeQuantity}
                 }
+            );
 
-                if (topAsk->getRemainingQuantity() == 0) {
-                    askLevel->pop_front();
-                    if (askLevel->empty()) {
-                        asks.pop();
-                        askLevels.erase(topAsk->getPrice());
-                        delete askLevel;
-                    }
-
-                    orders.erase(topAsk->getOrderId());
-                    delete topAsk;
+            if (topAsk->getRemainingQuantity() == 0) {
+                askLevel->pop_front();
+                
+                if (askLevel->empty()) {
+                    asks.pop();
+                    askLevels.erase(topAsk->getPrice());
+                    delete askLevel;
                 }
-
-                trades.push_back(
-                    Trade{
-                        TradeInfo{topBid->getOrderId(), topBid->getPrice(), tradeQuantity},
-                        TradeInfo{topAsk->getOrderId(), topAsk->getPrice(), tradeQuantity}
-                    }
-                );
+                
+                orders.erase(topAsk->getOrderId());
+                delete topAsk;
             }
 
+            if (topBid->getRemainingQuantity() == 0) {
+                bidLevel->pop_front();
+                if (bidLevel->empty()) {
+                    bids.pop();
+                    bidLevels.erase(topBid->getPrice());
+                    delete bidLevel;
+                }
+
+                orders.erase(topBid->getOrderId());
+                delete topBid;
+            }
+            
             // if the bid is a FillOrKill order, we need to cancel it
             if (!bids.empty()) {
                 auto& order = bids.top().second->front();
@@ -284,8 +301,9 @@ private:
                     cancelOrder(order->getOrderId());
                 }
             }
-            return trades;
+            
+            
         }
-        return {};
+        return trades;
     };
 };

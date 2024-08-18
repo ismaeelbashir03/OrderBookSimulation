@@ -13,14 +13,14 @@ using QueuePtr = Queue*;
 struct BidComparator {
     bool operator()(const std::pair<Price, QueuePtr>& lhs,
                     const std::pair<Price, QueuePtr>& rhs) const {
-        return lhs.first < rhs.first; // Max heap based on price
+        return lhs.first < rhs.first; 
     }
 };
 
 struct AskComparator {
     bool operator()(const std::pair<Price, QueuePtr>& lhs,
                     const std::pair<Price, QueuePtr>& rhs) const {
-        return lhs.first > rhs.first; // Min heap based on price
+        return lhs.first > rhs.first;
     }
 };
 
