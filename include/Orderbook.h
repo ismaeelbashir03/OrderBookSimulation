@@ -101,17 +101,8 @@ public:
             level->erase(it);
         }
 
-        // if the level is empty, remove it from the heap
-        if (level->empty()) {
-            if (order->getSide() == Side::Buy) {
-                bidLevels.erase(order->getPrice());
-                bids.pop();
-            } else {
-                askLevels.erase(order->getPrice());
-                asks.pop();
-            }
-            delete level;
-        }
+        // not removing the level from the heap if empty, 
+        // as it will be removed when it is at top (lazy deletion)
 
         // delete the order
         delete order;
@@ -232,6 +223,20 @@ private:
     Trades matchOrders() {
         Trades trades;
         trades.reserve(asks.size() + bids.size()); // At most, we can have one trade per order
+
+        // handle lazy deletion of levels (if they are empty)
+        while (!bids.empty() && bidLevels[bids.top().first]->empty()) {
+            auto& level = bidLevels[bids.top().first];
+            bidLevels.erase(bids.top().first);
+            bids.pop();
+            delete level;
+        }
+        while (!asks.empty() && askLevels[asks.top().first]->empty()) {
+            auto& level = askLevels[asks.top().first];
+            askLevels.erase(asks.top().first);
+            asks.pop();
+            delete level;
+        }
         
         while (!bids.empty() && !asks.empty()) {
 

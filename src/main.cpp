@@ -62,7 +62,7 @@ int main() {
     orderbook.printOrderbook();
 
     // cancel last order
-    orderbook.cancelOrder(order7.first);
+    orderbook.cancelOrder(order5.first);
     orderbook.printOrderbook();
 
     // cancel order that doesnt exist
