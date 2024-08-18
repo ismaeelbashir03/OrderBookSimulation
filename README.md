@@ -21,9 +21,9 @@ This project is a market simulation that implements an order book with agents th
 
     - [x] Implement Matching Algorithm
 
-    - [ ] Implement Cancel Orders
+    - [x] Implement Cancel Orders
     
-    - [ ] Implement Modify Orders
+    - [x] Implement Modify Orders
     
     - [ ] Make sure there are no memory leaks
 
