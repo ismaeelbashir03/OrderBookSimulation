@@ -31,5 +31,5 @@ private:
     Time time;
 };
 
-using OrderPtr = std::shared_ptr<Order>;
+using OrderPtr = Order*;
 using OrderPtrs = std::list<OrderPtr>;

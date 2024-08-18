@@ -18,7 +18,3 @@ Price OrderModify::getPrice() const {
 Side OrderModify::getSide() const {
     return side;
 }
-
-OrderPtr OrderModify::toOrderPtr(OrderType type) const {
-    return std::make_shared<Order>(orderId, price, quantity, side, type);
-}

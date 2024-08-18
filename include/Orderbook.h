@@ -34,28 +34,24 @@ public:
 
     OrderConfirmation addOrder(const Price price, const Quantity quantity, const Side side, const OrderType orderType) {
 
-        OrderPtr order = std::make_shared<Order>(getOrderId(), price, quantity, side, orderType);
-
-        // if the order already exists, return 
-        if (orders.find(order->getOrderId()) != orders.end()) {
-            return {};
-        }
+        OrderPtr order = new Order(getOrderId(), price, quantity, side, orderType);
 
         // if we can't match the FoK order, return 
         if (order->getOrderType() == OrderType::FillOrKill) {
             if (!canMatch(order->getSide(), order->getPrice())) {
+                delete order; // cleanup
                 return {};
             }
         }
 
         // if the price level doesn't exist, create it
         if (order->getSide() == Side::Buy && bidLevels.find(order->getPrice()) == bidLevels.end()) {
-            Queue q;
-            bidLevels[order->getPrice()] = std::make_shared<Queue>(q);
+            Queue* q = new Queue();
+            bidLevels[order->getPrice()] = q;
             bids.push({order->getPrice(), bidLevels[order->getPrice()]});
         } else if (order->getSide() == Side::Sell && askLevels.find(order->getPrice()) == askLevels.end()) {
-            Queue q;
-            askLevels[order->getPrice()] = std::make_shared<Queue>(q);
+            Queue* q = new Queue();
+            askLevels[order->getPrice()] = q;
             asks.push({order->getPrice(), askLevels[order->getPrice()]});
         }
 
@@ -64,7 +60,7 @@ public:
         queue->push_back(order);
 
         // store order and its location
-        orders[order->getOrderId()] = OrderPtr{order}; 
+        orders[order->getOrderId()] = order; 
         
         return OrderConfirmation{order->getOrderId(), matchOrders()};
     }
@@ -94,7 +90,11 @@ public:
             } else {
                 asks.pop();
             }
+            delete level;
         }
+
+        // delete the order
+        delete order;
     }
 
     OrderConfirmation modifyOrder(OrderId orderId, Price price, Quantity quantity, Side side) {
@@ -240,9 +240,11 @@ private:
                     if (bidLevel->empty()) {
                         bids.pop();
                         bidLevels.erase(topBid->getPrice());
+                        delete bidLevel;
                     }
 
                     orders.erase(topBid->getOrderId());
+                    delete topBid;
                 }
 
                 if (topAsk->getRemainingQuantity() == 0) {
@@ -250,9 +252,11 @@ private:
                     if (askLevel->empty()) {
                         asks.pop();
                         askLevels.erase(topAsk->getPrice());
+                        delete askLevel;
                     }
 
                     orders.erase(topAsk->getOrderId());
+                    delete topAsk;
                 }
 
                 trades.push_back(

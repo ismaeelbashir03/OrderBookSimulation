@@ -12,7 +12,6 @@ public:
     Quantity getQuantity() const;
     Price getPrice() const;
     Side getSide() const;
-    OrderPtr toOrderPtr(OrderType type) const;
 
 private:
     OrderId orderId;
