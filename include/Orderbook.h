@@ -3,7 +3,7 @@
 #include <vector>
 #include <queue>
 #include <functional>
-#include <numeric> // Add this line
+#include <numeric>
 #include "Order.h"
 #include "OrderLevel.h"
 #include "Trade.h"
@@ -14,9 +14,9 @@
 * Orderbook class
 
 * Architecture:
-* - Orders are stored in a map from order id to order
+* - Orders are stored in a map from order id to order ptr
 * - Bids and Asks are stored in a max heap and min heap respectively
-* - Price levels are stored in a map from price to a queue of orders
+* - Price levels are a queue of orders in each entry of the heaps
 *
 * The Orderbook class is responsible for:
 * - Adding orders to the orderbook
@@ -32,7 +32,9 @@
 class Orderbook {
 public:
 
-    Trades addOrder(OrderPtr order) {
+    OrderConfirmation addOrder(const Price price, const Quantity quantity, const Side side, const OrderType orderType) {
+
+        OrderPtr order = std::make_shared<Order>(getOrderId(), price, quantity, side, orderType);
 
         // if the order already exists, return 
         if (orders.find(order->getOrderId()) != orders.end()) {
@@ -48,35 +50,68 @@ public:
 
         // if the price level doesn't exist, create it
         if (order->getSide() == Side::Buy && bidLevels.find(order->getPrice()) == bidLevels.end()) {
-            bidLevels[order->getPrice()] = Queue();
+            Queue q;
+            bidLevels[order->getPrice()] = std::make_shared<Queue>(q);
+            bids.push({order->getPrice(), bidLevels[order->getPrice()]});
         } else if (order->getSide() == Side::Sell && askLevels.find(order->getPrice()) == askLevels.end()) {
-            askLevels[order->getPrice()] = Queue();
+            Queue q;
+            askLevels[order->getPrice()] = std::make_shared<Queue>(q);
+            asks.push({order->getPrice(), askLevels[order->getPrice()]});
         }
 
-        // Add the order to the price level
-        Queue& queue = (order->getSide() == Side::Buy) ? bidLevels[order->getPrice()] : askLevels[order->getPrice()];
-        queue.push(order);
+        // add the order to the price level
+        QueuePtr queue = (order->getSide() == Side::Buy) ? bidLevels[order->getPrice()] : askLevels[order->getPrice()];
+        queue->push_back(order);
 
-        // Store order and its location
+        // store order and its location
         orders[order->getOrderId()] = OrderPtr{order}; 
-
-        if (order->getSide() == Side::Buy) {
-            bids.push(std::make_pair(order->getPrice(), queue));
-        } else {
-            asks.push(std::make_pair(order->getPrice(), queue));
-        }
-
-        return matchOrders();
+        
+        return OrderConfirmation{order->getOrderId(), matchOrders()};
     }
 
     void cancelOrder(OrderId orderId) {
-        std :: cout << "Cancelling order " << orderId << std::endl;
-        return;
+
+        // if the order doesn't exist, return
+        if (orders.find(orderId) == orders.end()) {
+            return;
+        }
+
+        // remove the order from the map
+        auto order = orders[orderId];
+        orders.erase(orderId);
+
+        // remove the order from the price level
+        auto& level = (order->getSide() == Side::Buy) ? bidLevels[order->getPrice()] : askLevels[order->getPrice()];
+        auto it = std::find(level->begin(), level->end(), order);
+        if (it != level->end()) {
+            level->erase(it);
+        }
+
+        // if the level is empty, remove it from the heap
+        if (level->empty()) {
+            if (order->getSide() == Side::Buy) {
+                bids.pop();
+            } else {
+                asks.pop();
+            }
+        }
     }
 
-    Trades modifyOrder(OrderModify order) {
-        std :: cout << "Modifying order " << order.getOrderId() << std::endl;
-        return {};
+    OrderConfirmation modifyOrder(OrderId orderId, Price price, Quantity quantity, Side side) {
+            
+        // if the order doesn't exist, return
+        if (orders.find(orderId) == orders.end()) {
+            return {};
+        }
+
+        // cant change the order type, so this should be stored
+        OrderType orderType = orders[orderId]->getOrderType();
+
+        // cancel the order
+        cancelOrder(orderId);
+
+        // add the modified order
+        return addOrder(price, quantity, side, orderType);
     }
 
     std::size_t getNumBids() const {
@@ -92,74 +127,80 @@ public:
     }
 
     OrderBookLevelInfos getOrderInfos() const {
-        LevelInfos bidInfos, askInfos;
+    LevelInfos bidInfos, askInfos;
 
-        bidInfos.reserve(orders.size());
-        askInfos.reserve(orders.size());
+    bidInfos.reserve(orders.size());
+    askInfos.reserve(orders.size());
 
-        auto CreateLevelInfos = [](Price price, const Queue& q) {
-            Quantity totalQuantity = 0;
-            Queue copy = q; // Create a copy of the queue to iterate through it
-            while (!copy.empty()) {
-                totalQuantity += copy.front()->getRemainingQuantity();
-                copy.pop();
-            }
-            return LevelInfo{price, totalQuantity};
-        };
-
-        auto HeapToVector = [](const auto& heap) {
-            std::vector<std::pair<Price, Queue>> vec;
-            auto copy = heap; // Create a copy of the heap to iterate through it
-            while (!copy.empty()) {
-                vec.push_back(copy.top());
-                copy.pop();
-            }
-            return vec;
-        };
-
-        auto bidVec = HeapToVector(bids);
-        auto askVec = HeapToVector(asks);
-
-        for (const auto& [price, q] : bidVec) {
-            bidInfos.push_back(CreateLevelInfos(price, q));
+    auto CreateLevelInfos = [](Price price, const QueuePtr& q) {
+        Quantity totalQuantity = 0;
+        for (const auto& order : *q) {
+            totalQuantity += order->getRemainingQuantity();
         }
+        return LevelInfo{price, totalQuantity};
+    };
 
-        for (const auto& [price, q] : askVec) {
-            askInfos.push_back(CreateLevelInfos(price, q));
+    auto HeapToVector = [](const auto& heap) {
+        std::vector<std::pair<Price, QueuePtr>> vec;
+        auto copy = heap;
+        while (!copy.empty()) {
+            vec.push_back(copy.top());
+            copy.pop();
         }
+        return vec;
+    };
 
-        return OrderBookLevelInfos{bidInfos, askInfos};
+    auto bidVec = HeapToVector(bids);
+    auto askVec = HeapToVector(asks);
+
+    for (const auto& [price, q] : bidVec) {
+        bidInfos.push_back(CreateLevelInfos(price, q));
     }
 
+    for (const auto& [price, q] : askVec) {
+        askInfos.push_back(CreateLevelInfos(price, q));
+    }
+
+    return OrderBookLevelInfos{bidInfos, askInfos};
+}
+
 private:
+
+    OrderId orderId = 0;
     
     // HEAPS - Allow for quick access to the best bid/ask
-    // Max heap based on price, then min heap based on time
+    // max heap based on price, then min heap based on time
     Bids bids;
-    // Min heap based on price, then min heap based on time
+    // min heap based on price, then min heap based on time
     Asks asks;
 
     // MAPS - Allow for quick access to the level (add, remove, modify orders)
     // map from price to level
-    std::unordered_map<Price, Queue> askLevels;
+    std::unordered_map<Price, QueuePtr> askLevels;
     // map from price to level
-    std::unordered_map<Price, Queue> bidLevels;
+    std::unordered_map<Price, QueuePtr> bidLevels;
 
-    // Map of order id to order ptr
+    // map of order id to order ptr
     std::unordered_map<OrderId, OrderPtr> orders;
     
+    /*
+    * Returns a unique order id
+    */
+    int getOrderId() {
+        return orderId++;
+    }
 
     /*
     * Checks if the order can be matched with the current order book 
     */
     bool canMatch(Side side, Price price) const {
         if (side == Side::Buy) {
-            // If there are no asks, we can't match
-            // If the price is less than the best ask, we can't match
+            // if there are no asks, we can't match
+            // if the price is less than the best ask, we can't match
             return !asks.empty() && price >= asks.top().first;
         } else {
-            // If there are no bids, we can't match
-            // If the price is greater than the best bid, we can't match
+            // if there are no bids, we can't match
+            // if the price is greater than the best bid, we can't match
             return !bids.empty() && price <= bids.top().first;
         }
     }
@@ -169,19 +210,19 @@ private:
     * Matches orders in the orderbook
     */
     Trades matchOrders() {
+
         Trades trades;
         trades.reserve(asks.size() + bids.size()); // At most, we can have one trade per order
 
-        // While we can match orders
         while (!bids.empty() && !asks.empty()) {
 
             Price bidPrice = bids.top().first;
-            Queue bidLevel = bids.top().second;
-            auto& topBid = bidLevel.front();
+            QueuePtr bidLevel = bids.top().second;
+            auto& topBid = bidLevel->front();
 
             Price askPrice = asks.top().first;
-            Queue askLevel = asks.top().second;
-            auto& topAsk = askLevel.front();
+            QueuePtr askLevel = asks.top().second;
+            auto& topAsk = askLevel->front();
 
             // if the bid price is less than the ask price, we can't match
             if (bidPrice < askPrice) {
@@ -195,8 +236,8 @@ private:
                 topAsk->fill(tradeQuantity);
 
                 if (topBid->getRemainingQuantity() == 0) {
-                    bidLevel.pop();
-                    if (bidLevel.empty()) {
+                    bidLevel->pop_front();
+                    if (bidLevel->empty()) {
                         bids.pop();
                         bidLevels.erase(topBid->getPrice());
                     }
@@ -205,8 +246,8 @@ private:
                 }
 
                 if (topAsk->getRemainingQuantity() == 0) {
-                    askLevel.pop();
-                    if (askLevel.empty()) {
+                    askLevel->pop_front();
+                    if (askLevel->empty()) {
                         asks.pop();
                         askLevels.erase(topAsk->getPrice());
                     }
@@ -214,7 +255,6 @@ private:
                     orders.erase(topAsk->getOrderId());
                 }
 
-                // Add the trade to the list of trades
                 trades.push_back(
                     Trade{
                         TradeInfo{topBid->getOrderId(), topBid->getPrice(), tradeQuantity},
@@ -223,18 +263,18 @@ private:
                 );
             }
 
-            // If the bid is a FillOrKill order, we need to cancel it
+            // if the bid is a FillOrKill order, we need to cancel it
             if (!bids.empty()) {
-                auto& order = bids.top().second.front();
+                auto& order = bids.top().second->front();
 
                 if (order->getOrderType() == OrderType::FillOrKill) {
                     cancelOrder(order->getOrderId());
                 }
             }
 
-            // If the ask is a FillOrKill order, we need to cancel it
+            // if the ask is a FillOrKill order, we need to cancel it
             if (!asks.empty()) {
-                auto& order = asks.top().second.front();
+                auto& order = asks.top().second->front();
 
                 if (order->getOrderType() == OrderType::FillOrKill) {
                     cancelOrder(order->getOrderId());
@@ -242,7 +282,6 @@ private:
             }
             return trades;
         }
-
         return {};
     };
 };

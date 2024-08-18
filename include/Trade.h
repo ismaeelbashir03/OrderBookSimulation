@@ -22,3 +22,4 @@ private:
 };
 
 using Trades = std::vector<Trade>;
+using OrderConfirmation = std::pair<OrderId, Trades>;
