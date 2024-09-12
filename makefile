@@ -1,37 +1,48 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Werror -Iinclude
-
-TARGET = output/OrderBook
-TARGET_ST = output/StressTest
+CXXFLAGS = -std=c++17 -Wall -Wextra -Werror -I include/
 
 SRC_DIR = src
 OUT_DIR = output
 
-all: $(TARGET) $(TARGET_ST)
-
-$(TARGET): $(OBJS) $(SRC_DIR)/main.cpp
+# main target
+build: 
 	mkdir -p $(OUT_DIR)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC_DIR)/main.cpp
+	$(CXX) $(CXXFLAGS) $(SRC_DIR)/main.cpp -o $(OUT_DIR)/main
 
-$(TARGET_ST): $(OBJS) $(SRC_DIR)/stressTest.cpp
+run:
+	./$(OUT_DIR)/main
+
+orderbook: build run
+
+
+# stress test target
+build_stress_test:
 	mkdir -p $(OUT_DIR)
-	$(CXX) $(CXXFLAGS) -o $(TARGET_ST) $(SRC_DIR)/stressTest.cpp
+	$(CXX) $(CXXFLAGS) $(SRC_DIR)/stressTest.cpp -o $(OUT_DIR)/stress_test
 
-$(OUT_DIR)/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $(OUT_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-run: $(TARGET)
-	./$(TARGET)
-
-stress_test: $(TARGET_ST)
+run_stress_test: $(TARGET_ST)
 	python3 python/order_generator.py
-	./$(TARGET_ST)
+	./$(OUT_DIR)/stress_test
 
-valgrind: $(TARGET)
-	valgrind --leak-check=full ./$(TARGET)
+stress_test: build_stress_test run_stress_test
+
+
+# agent target
+build_agent: build
+	mkdir -p $(OUT_DIR)
+	$(CXX) $(CXXFLAGS) $(SRC_DIR)/agent.cpp -o $(OUT_DIR)/agent
+
+run_agent:
+	./$(OUT_DIR)/agent
+
+agent: build_agent run_agent
+
+
+# valgrind target
+valgrind_run:
+	valgrind --leak-check=full ./$(OUT_DIR)/main
+
+valgrind: build valgrind_run
 
 clean:
-	rm -f $(OUT_DIR)/*.o $(TARGET) $(TARGET_ST)
-
-.PHONY: all clean run stress_test valgrind
+	rm -f $(OUT_DIR)/

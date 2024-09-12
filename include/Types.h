@@ -7,7 +7,7 @@
 // Order types
 using Price = std::int32_t;
 using Quantity = std::uint32_t;
-using OrderId = std::uint64_t;
+using OrderId = std::int64_t;
 using Time = std::chrono::time_point<std::chrono::system_clock>;
 
 // Level types

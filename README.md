@@ -2,12 +2,12 @@
 
 ## Overview
 
-This project is a market simulation that implements an order book with agents that can trade. The simulation will be extended to include various market conditions such as bullish and bearish trends.
+This project is a market simulation that implements an order book with agents that can trade. The agents will trade using procedurally generated data. The simulation will be extended to include various market conditions such as bullish and bearish trends.
 
 ## Features
 
 - **Order Book**: An order book that supports adding, cancelling and modifying Market Orders, and FoK orders with a matching algorithm.
-- **Agents**: (Upcoming) Agents that can place and cancel orders in the market.
+- **Procedural Agents**: Can run simulated agent orders on exchange for any number of days.
 - **Market Conditions**: (Upcoming) Simulations of different market conditions such as bullish and bearish trends.
 
 
@@ -29,7 +29,14 @@ This project is a market simulation that implements an order book with agents th
 
     - [x] Stress test the order book (make stress_test)
 
-- [ ] Implement Agents 
+- [-] Implement Agents 
+
+    - [x] Implement Agents that can place orders in the market
+
+    - [x] Implement Agents that can cancel orders in the market
+    
+    - [x] Implement Agents that can modify orders in the market
+
 - [ ] Implement Market Conditions
 
 ## Installation
@@ -52,25 +59,26 @@ To get started with this project, follow these steps:
     sudo apt-get install valgrind
     ```
 
-3. **Build the project**:
-    Ensure you have `g++` installed. You can use the provided Makefile to build the project.
-    ```sh
-    make
-    ```
+3. **Build the project and run it**:
 
 ## Usage
 
-After building the project, you can run the simulation:
-
+To run the order book (small test in main.cpp):
 ```sh
-./output/OrderBook
+make orderbook
 ```
-Or 
+
+To run the agent simulation (simulates orders with procedural generation):
 ```sh
-make run
+make agent
 ```
 
 To run the stress test (generates 1 million random orders and tests the order book):
 ```sh
 make stress_test
+```
+
+To run the valgrind test (checks for memory leaks):
+```sh
+make valgrind
 ```

@@ -79,7 +79,7 @@ public:
 
         // store order and its location
         orders[order->getOrderId()] = order; 
-
+        
         return OrderConfirmation{order->getOrderId(), matchOrders()};
     }
 
@@ -239,21 +239,29 @@ private:
         }
         
         while (!bids.empty() && !asks.empty()) {
-
+            
             Price bidPrice = bids.top().first;
             QueuePtr bidLevel = bids.top().second;
-            auto& topBid = bidLevel->front();
+            if (bidLevel->empty()) {
+                bids.pop();
+                continue;
+            }
+            OrderPtr topBid = bidLevel->front();
 
             Price askPrice = asks.top().first;
             QueuePtr askLevel = asks.top().second;
-            auto& topAsk = askLevel->front();
-
+            if (askLevel->empty()) {
+                asks.pop();
+                continue;
+            }
+            OrderPtr topAsk = askLevel->front();
+            
             // if the bid price is less than the ask price, we can't match
             if (bidPrice < askPrice) {
                 break;
             }
                 
-            auto tradeQuantity = std::min(topBid->getRemainingQuantity(), topAsk->getRemainingQuantity());
+            Quantity tradeQuantity = std::min(topBid->getRemainingQuantity(), topAsk->getRemainingQuantity());
             topBid->fill(tradeQuantity);
             topAsk->fill(tradeQuantity);
 
@@ -263,16 +271,15 @@ private:
                     TradeInfo{topAsk->getOrderId(), topAsk->getPrice(), tradeQuantity}
                 }
             );
-
+            
+            // if the order is fully filled, remove it from the level
             if (topAsk->getRemainingQuantity() == 0) {
                 askLevel->pop_front();
-                
                 if (askLevel->empty()) {
                     asks.pop();
                     askLevels.erase(topAsk->getPrice());
                     delete askLevel;
                 }
-                
                 orders.erase(topAsk->getOrderId());
                 delete topAsk;
             }
@@ -284,11 +291,10 @@ private:
                     bidLevels.erase(topBid->getPrice());
                     delete bidLevel;
                 }
-
                 orders.erase(topBid->getOrderId());
                 delete topBid;
             }
-            
+
             // if the bid is a FillOrKill order, we need to cancel it
             if (!bids.empty()) {
                 auto& order = bids.top().second->front();
@@ -306,7 +312,6 @@ private:
                     cancelOrder(order->getOrderId());
                 }
             }
-            
             
         }
         return trades;
