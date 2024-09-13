@@ -5,7 +5,7 @@
 const int NUMBER_OF_AGENTS = 1000;
 RandomNumber rn = RandomNumber();
 const int SEED = 1234;
-const int TICKS_IN_DAY = 10;
+const int TICKS_IN_DAY = 1000;
 
 int main() {
     Orderbook orderbook = Orderbook();

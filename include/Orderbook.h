@@ -244,6 +244,8 @@ private:
             QueuePtr bidLevel = bids.top().second;
             if (bidLevel->empty()) {
                 bids.pop();
+                bidLevels.erase(bidPrice);
+                delete bidLevel;
                 continue;
             }
             OrderPtr topBid = bidLevel->front();
@@ -252,6 +254,8 @@ private:
             QueuePtr askLevel = asks.top().second;
             if (askLevel->empty()) {
                 asks.pop();
+                askLevels.erase(askPrice);
+                delete askLevel;
                 continue;
             }
             OrderPtr topAsk = askLevel->front();
