@@ -1,6 +1,6 @@
 #pragma once
 
 enum class OrderType {
-    MarketOrder,
+    LimitOrder,
     FillOrKill
 };

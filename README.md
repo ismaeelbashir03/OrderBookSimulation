@@ -6,7 +6,7 @@ This project is a market simulation that implements an order book with agents th
 
 ## Features
 
-- **Order Book**: An order book that supports adding, cancelling and modifying Market Orders, and FoK orders with a matching algorithm.
+- **Order Book**: An order book that supports adding, cancelling and modifying Limit Orders, and FoK orders with a matching algorithm.
 - **Procedural Agents**: Can run simulated agent orders on exchange for any number of days.
 - **Market Conditions**: (Upcoming) Simulations of different market conditions such as bullish and bearish trends.
 
@@ -15,7 +15,7 @@ This project is a market simulation that implements an order book with agents th
 
 - [x] Implement Order Book
 
-    - [x] Implement Market Orders
+    - [x] Implement Limit Orders
 
     - [x] Implement FoK Orders
 

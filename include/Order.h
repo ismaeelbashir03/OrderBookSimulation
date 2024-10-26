@@ -26,7 +26,7 @@ public:
         this->initialQuantity = 0;
         this->remainingQuantity = 0;
         this->side = Side::Buy;
-        this->orderType = OrderType::MarketOrder;
+        this->orderType = OrderType::LimitOrder;
         this->time = std::chrono::system_clock::now();
     }
 

@@ -28,7 +28,7 @@ int main() {
 
         Side side = (flag == 1) ? Side::Buy : Side::Sell;
         
-        orderbook.addOrder(price, quantity, side, OrderType::MarketOrder);
+        orderbook.addOrder(price, quantity, side, OrderType::LimitOrder);
     }
 
     infile.close();

@@ -22,43 +22,43 @@ int main() {
     Orderbook orderbook = Orderbook();
 
     for (int i = 0; i < 50; i++) {
-        OrderConfirmation confirmation = addOrder(orderbook, 100, 10, Side::Buy, OrderType::MarketOrder);
+        OrderConfirmation confirmation = addOrder(orderbook, 100, 10, Side::Buy, OrderType::LimitOrder);
 
         if (rand() % 2 == 0) {
             orderbook.cancelOrder(confirmation.first);
         } else {
-            addOrder(orderbook, 100, 10, Side::Sell, OrderType::MarketOrder);
+            addOrder(orderbook, 100, 10, Side::Sell, OrderType::LimitOrder);
         }
         orderbook.printOrderbook();
     }
 
 
-    // add Market order of 10 buy
-    OrderConfirmation order1 = addOrder(orderbook, 100, 10, Side::Buy, OrderType::MarketOrder);
+    // add Limit order of 10 buy
+    OrderConfirmation order1 = addOrder(orderbook, 100, 10, Side::Buy, OrderType::LimitOrder);
     orderbook.printOrderbook();
 
-    // add Market order of 5 sell
-    OrderConfirmation order2 = addOrder(orderbook, 100, 5, Side::Sell, OrderType::MarketOrder);
+    // add Limit order of 5 sell
+    OrderConfirmation order2 = addOrder(orderbook, 100, 5, Side::Sell, OrderType::LimitOrder);
     orderbook.printOrderbook();
 
     // add Fok order of 3 buy
     OrderConfirmation order3 = addOrder(orderbook, 100, 2, Side::Sell, OrderType::FillOrKill);
     orderbook.printOrderbook();
 
-    // add market order of 5 sell different price
-    OrderConfirmation order4 = addOrder(orderbook, 110, 5, Side::Sell, OrderType::MarketOrder);
+    // add Limit order of 5 sell different price
+    OrderConfirmation order4 = addOrder(orderbook, 110, 5, Side::Sell, OrderType::LimitOrder);
     orderbook.printOrderbook();
 
-    // add market order of 5 buy different price
-    OrderConfirmation order5 = addOrder(orderbook, 99, 5, Side::Buy, OrderType::MarketOrder);
+    // add Limit order of 5 buy different price
+    OrderConfirmation order5 = addOrder(orderbook, 99, 5, Side::Buy, OrderType::LimitOrder);
     orderbook.printOrderbook();
 
-    // add market order of 5 sell different price
-    OrderConfirmation order6 = addOrder(orderbook, 101, 5, Side::Sell, OrderType::MarketOrder);
+    // add Limit order of 5 sell different price
+    OrderConfirmation order6 = addOrder(orderbook, 101, 5, Side::Sell, OrderType::LimitOrder);
     orderbook.printOrderbook();
 
-    // add market order of 5 sell different price
-    OrderConfirmation order7 = addOrder(orderbook, 101, 5, Side::Sell, OrderType::MarketOrder);
+    // add Limit order of 5 sell different price
+    OrderConfirmation order7 = addOrder(orderbook, 101, 5, Side::Sell, OrderType::LimitOrder);
     orderbook.printOrderbook();
 
     // cancel order

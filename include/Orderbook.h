@@ -27,7 +27,7 @@
 * - Returning the orderbook level information
 *
 * - Supports FillOrKill orders
-* - Supports Market orders
+* - Supports Limit Orders
 */
 class Orderbook {
 public:
