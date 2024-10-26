@@ -2,5 +2,5 @@
 
 enum class OrderType {
     LimitOrder,
-    FillOrKill
+    MarketOrder
 };

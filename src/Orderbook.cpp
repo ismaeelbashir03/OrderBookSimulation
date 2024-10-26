@@ -27,7 +27,7 @@ OrderConfirmation Orderbook::addOrder(const Price price, const Quantity quantity
     *order = Order(getOrderId(), price, quantity, side, orderType);
 
     // if we can't match the FoK order, return
-    if (order->getOrderType() == OrderType::FillOrKill) {
+    if (order->getOrderType() == OrderType::MarketOrder) {
         if (!canMatch(order->getSide(), order->getPrice())) {
             orderPool.deallocate(order); // cleanup
             return {};

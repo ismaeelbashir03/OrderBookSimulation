@@ -6,7 +6,7 @@ This project is a market simulation that implements an order book with agents th
 
 ## Features
 
-- **Order Book**: An order book that supports adding, cancelling and modifying Limit Orders, and FoK orders with a matching algorithm.
+- **Order Book**: An order book that supports adding, cancelling and modifying Limit Orders, and Market orders with a matching algorithm.
 - **Procedural Agents**: Can run simulated agent orders on exchange for any number of days.
 - **Market Conditions**: (Upcoming) Simulations of different market conditions such as bullish and bearish trends.
 
@@ -17,7 +17,7 @@ This project is a market simulation that implements an order book with agents th
 
     - [x] Implement Limit Orders
 
-    - [x] Implement FoK Orders
+    - [x] Implement Market Orders
 
     - [x] Implement Matching Algorithm
 
@@ -29,7 +29,7 @@ This project is a market simulation that implements an order book with agents th
 
     - [x] Stress test the order book (make stress_test)
 
-- [-] Implement Agents 
+- [x] Implement Agents 
 
     - [x] Implement Agents that can place orders in the market
 
@@ -81,4 +81,14 @@ make stress_test
 To run the valgrind test (checks for memory leaks):
 ```sh
 make valgrind
+```
+
+To run leak for mac (checks for memory leaks):
+```sh
+make leak
+```
+
+To run tests (unit tests):
+```sh
+make tests
 ```

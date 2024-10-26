@@ -42,7 +42,7 @@ int main() {
     orderbook.printOrderbook();
 
     // add Fok order of 3 buy
-    OrderConfirmation order3 = addOrder(orderbook, 100, 2, Side::Sell, OrderType::FillOrKill);
+    OrderConfirmation order3 = addOrder(orderbook, 100, 2, Side::Sell, OrderType::MarketOrder);
     orderbook.printOrderbook();
 
     // add Limit order of 5 sell different price

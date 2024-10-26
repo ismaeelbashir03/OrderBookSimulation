@@ -26,7 +26,7 @@
 * - Returning the number of bids, asks, and orders in the orderbook
 * - Returning the orderbook level information
 *
-* - Supports FillOrKill orders
+* - Supports Market Orders orders
 * - Supports Limit Orders
 */
 class Orderbook {

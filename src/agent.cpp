@@ -5,7 +5,7 @@
 const int NUMBER_OF_AGENTS = 1000;
 RandomNumber rn = RandomNumber();
 const int SEED = 1234;
-const int TICKS_IN_DAY = 1000;
+const int TICKS_IN_DAY = 100; // number of actions in a day
 
 int main() {
     Orderbook orderbook = Orderbook();
@@ -13,7 +13,7 @@ int main() {
     
     std::vector<BacktestAgent> agents;
     for (int i = 0; i < NUMBER_OF_AGENTS; i++) {
-        BacktestAgent agent(rn.rndInt(1, 10000), orderbook);
+        BacktestAgent agent = BacktestAgent(rn.rndInt(1, 10000), orderbook);
         agents.push_back(agent);
     }
 
