@@ -1,5 +1,7 @@
 #include "Orderbook.h"
 #include <cassert>
+#include <fstream>
+#include <sstream>
 #include <iostream>
 
 void testAddOrder() {
@@ -77,6 +79,98 @@ void testMatchOrdersFullFill() {
     std::cout << "testMatchOrders passed.\n";
 }
 
+void createhashFile() {
+    Orderbook orderbook;
+
+    std::hash<std::string> hasher;
+    std::ofstream outFile("output/hash_output.txt");
+
+    std::ifstream file("output/hash_orders.txt");
+    std::string line;
+    std::string hash;
+
+    
+    while (std::getline(file, line)) {
+        std::string hash;
+        std::istringstream iss(line);
+        int flag;
+        double price;
+        int quantity;
+        
+        if (!(iss >> flag >> price >> quantity)) {
+            std::cerr << "error: " << line << std::endl;
+            continue;
+        }
+
+        Side side = (flag == 1) ? Side::Buy : Side::Sell;
+        
+        orderbook.addOrder(price, quantity, side, OrderType::LimitOrder);
+
+        // add the hash of the order to the hash string
+        OrderBookLevelInfos infos = orderbook.getOrderInfos();
+        hash += std::to_string(infos.getBids().size());
+        hash += std::to_string(infos.getAsks().size());
+        for (auto& bid : infos.getBids()) {
+            hash += std::to_string(bid.price);
+            hash += std::to_string(bid.quantity);
+        }
+        for (auto& ask : infos.getAsks()) {
+            hash += std::to_string(ask.price);
+            hash += std::to_string(ask.quantity);
+        }
+        size_t hashValue = hasher(hash);
+        outFile << hashValue << std::endl;
+    }
+    outFile.close();
+}
+
+void hashTest() {
+    Orderbook orderbook;
+
+    std::hash<std::string> hasher;
+    std::ifstream file("hash_orders.txt");
+    std::string line;
+    std::string hash;
+
+    std::ifstream hashFile("hash_output.txt");
+    std::string hashLine;
+
+    while (std::getline(file, line)) {
+        std::string hash;
+        std::istringstream iss(line);
+        int flag;
+        double price;
+        int quantity;
+        
+        if (!(iss >> flag >> price >> quantity)) {
+            std::cerr << "error: " << line << std::endl;
+            continue;
+        }
+
+        Side side = (flag == 1) ? Side::Buy : Side::Sell;
+        
+        orderbook.addOrder(price, quantity, side, OrderType::LimitOrder);
+
+        // add the hash of the order to the hash string
+        OrderBookLevelInfos infos = orderbook.getOrderInfos();
+        hash += std::to_string(infos.getBids().size());
+        hash += std::to_string(infos.getAsks().size());
+        for (auto& bid : infos.getBids()) {
+            hash += std::to_string(bid.price);
+            hash += std::to_string(bid.quantity);
+        }
+        for (auto& ask : infos.getAsks()) {
+            hash += std::to_string(ask.price);
+            hash += std::to_string(ask.quantity);
+        }
+        size_t hashValue = hasher(hash);
+        std::getline(hashFile, hashLine);
+        size_t expectedHash = std::stoul(hashLine);
+        assert(hashValue == expectedHash);
+    }
+    std::cout << "hashTest passed.\n";
+}
+
 int main() {
     testAddOrder();
     testCancelOrder();
@@ -84,6 +178,9 @@ int main() {
     testGetOrderInfos();
     testMatchOrdersPartialFill();
     testMatchOrdersFullFill();
+    // hash file already created, so should compare against original hash file
+    // createhashFile();
+    hashTest();
 
     std::cout << "All tests passed.\n";
     return 0;
