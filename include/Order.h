@@ -19,6 +19,17 @@ public:
         this->time = std::chrono::system_clock::now();
     }
 
+    // default constructor for memory pool
+    Order() {
+        this->orderId = -1;
+        this->price = 0;
+        this->initialQuantity = 0;
+        this->remainingQuantity = 0;
+        this->side = Side::Buy;
+        this->orderType = OrderType::MarketOrder;
+        this->time = std::chrono::system_clock::now();
+    }
+
     OrderId getOrderId() {
         return orderId;
     }

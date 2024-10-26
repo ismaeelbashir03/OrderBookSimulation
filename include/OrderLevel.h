@@ -8,7 +8,7 @@
 
 // bid/ask types
 using Queue = std::deque<OrderPtr>;
-using QueuePtr = Queue*;
+using QueuePtr = std::shared_ptr<Queue>;
 
 struct BidComparator {
     bool operator()(const std::pair<Price, QueuePtr>& lhs,
